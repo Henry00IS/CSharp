@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OOLaboratories.Constants
+namespace OOLaboratories.Constants.ISO
 {
     /// <summary>
     /// Countries by their country code as per ISO-3166-1 like "DE" = "Germany".
