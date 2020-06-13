@@ -23,31 +23,48 @@
 ////////////////////// https://github.com/Henry00IS/CSharp ////////// http://00laboratories.com/ //
 
 using System;
-using System.Collections.Generic;
 
 namespace OOLaboratories.Proprietary.ValveMapFormat2006
 {
     /// <summary>
-    /// Represents a Hammer Entity.
+    /// Represents a Hammer Vector3.
     /// </summary>
-    public class VmfEntity
+    public class VmfVector4
     {
-        public int Id = -1;
+        /// <summary>
+        /// The x-coordinate of the vector.
+        /// </summary>
+        public float X;
 
         /// <summary>
-        /// The class name of the entity.
+        /// The y-coordinate of the vector.
         /// </summary>
-        public string ClassName;
+        public float Y;
 
         /// <summary>
-        /// The solids in the entity if available.
+        /// The z-coordinate of the vector.
         /// </summary>
-        public List<VmfSolid> Solids = new List<VmfSolid>();
+        public float Z;
 
         /// <summary>
-        /// The properties in the entity whenever parsable.
+        /// The w-coordinate of the vector.
         /// </summary>
-        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+        public float W;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VmfVector4"/> class.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the vector.</param>
+        /// <param name="y">The y-coordinate of the vector.</param>
+        /// <param name="z">The z-coordinate of the vector.</param>
+        /// <param name="w">The z-coordinate of the vector.</param>
+        public VmfVector4(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
@@ -55,7 +72,7 @@ namespace OOLaboratories.Proprietary.ValveMapFormat2006
         /// <returns>A <see cref="System.String"/> that represents this instance.</returns>
         public override string ToString()
         {
-            return "VmfEntity " + ClassName + " " + Id + " (" + Solids.Count + " Solids)";
+            return "VmfVector4 (X=" + X + ", Y=" + Y + ", Z=" + Z + ", W=" + W + ")";
         }
     }
 }

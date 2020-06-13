@@ -193,6 +193,7 @@ namespace OOLaboratories.Proprietary.ValveMapFormat2006
                             {
                                 case "id": entity.Id = (int)value; break;
                                 case "classname": entity.ClassName = (string)value; break;
+                                default: entity.Properties[key] = value; break;
                             }
                         }
                     }
@@ -288,6 +289,20 @@ namespace OOLaboratories.Proprietary.ValveMapFormat2006
             {
                 string[] values = rawvalue.Replace("[", "").Replace("]", "").Split(' ');
                 value = new VmfAxis(new VmfVector3(float.Parse(values[0], CultureInfo.InvariantCulture), float.Parse(values[1], CultureInfo.InvariantCulture), float.Parse(values[2], CultureInfo.InvariantCulture)), float.Parse(values[3], CultureInfo.InvariantCulture), float.Parse(values[4], CultureInfo.InvariantCulture));
+                return true;
+            }
+            // detect vector3 definition.
+            else if (rawvalue.Count(c => c == ' ') == 2 && rawvalue.All(c => " -.0123456789".Contains(c)))
+            {
+                string[] values = rawvalue.Split(' ');
+                value = new VmfVector3(float.Parse(values[0], CultureInfo.InvariantCulture), float.Parse(values[1], CultureInfo.InvariantCulture), float.Parse(values[2], CultureInfo.InvariantCulture));
+                return true;
+            }
+            // detect vector4 definition.
+            else if (rawvalue.Count(c => c == ' ') == 3 && rawvalue.All(c => " -.0123456789".Contains(c)))
+            {
+                string[] values = rawvalue.Split(' ');
+                value = new VmfVector4(float.Parse(values[0], CultureInfo.InvariantCulture), float.Parse(values[1], CultureInfo.InvariantCulture), float.Parse(values[2], CultureInfo.InvariantCulture), float.Parse(values[3], CultureInfo.InvariantCulture));
                 return true;
             }
             // detect floating point value.
