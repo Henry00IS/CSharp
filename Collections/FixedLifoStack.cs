@@ -30,7 +30,7 @@ namespace OOLaboratories.Collections
     /// you to add elements without memory reallocations. It is useful to store a fixed amount of
     /// historical data, where [0] always points to the latest entry.
     /// </summary>
-    /// <typeparam name="T">The generic type stored in this circular buffer.</typeparam>
+    /// <typeparam name="T">The generic type stored in this collection.</typeparam>
     public class FixedLifoStack<T> : IList<T>
     {
         /// <summary>The internal fixed buffer that contains all data.</summary>
