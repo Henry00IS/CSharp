@@ -27,7 +27,7 @@ namespace OOLaboratories.Unity
     /// Represents a delayed signal that when set, returns true on the next frame. Then it's
     /// automatically reset (unless set again), acts just like <seealso cref="Input.GetKeyDown"/>.
     /// </summary>
-	[System.Serializable]
+    [System.Serializable]
     public struct DelayedSignal
     {
         private int? frame1;

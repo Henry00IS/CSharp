@@ -28,7 +28,7 @@ namespace OOLaboratories.Unity
     /// it will return the value that was set on previous frames.
     /// </summary>
     /// <typeparam name="T">The generic type stored in this struct.</typeparam>
-	[System.Serializable]
+    [System.Serializable]
     public struct Delayed<T>
     {
         private int lastFrame;
