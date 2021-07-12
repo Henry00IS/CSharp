@@ -48,7 +48,7 @@ namespace OOLaboratories.Proprietary.ValveMapFormat2006
 
             // open the file for reading. we use streams for additional performance.
             // it's faster than File.ReadAllLines() as that requires two iterations.
-            using (FileStream stream = new FileStream(path, FileMode.Open))
+            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             using (StreamReader reader = new StreamReader(stream))
             {
                 // read all the lines from the file.
@@ -372,7 +372,7 @@ namespace OOLaboratories.Proprietary.ValveMapFormat2006
             // detect alternate vector3 definition.
             else if (rawvalue.Count(c => c == ' ') == 2 && rawvalue.All(c => " e-.0123456789[]".Contains(c))) // "e" exponent occurs here fixing 'ep2_outland_07_barn.vmf'.
             {
-                string[] values = rawvalue.Replace("[","").Replace("]", "").Split(' ');
+                string[] values = rawvalue.Replace("[", "").Replace("]", "").Split(' ');
                 value = new VmfVector3(float.Parse(values[0], CultureInfo.InvariantCulture), float.Parse(values[1], CultureInfo.InvariantCulture), float.Parse(values[2], CultureInfo.InvariantCulture));
                 return true;
             }
