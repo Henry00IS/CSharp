@@ -26,15 +26,15 @@ using System.Collections.Generic;
 namespace OOLaboratories.Collections
 {
     /// <summary>
-    /// A last-in first-out stack that uses a single, fixed-size buffer. This implementation allows
-    /// you to add elements without memory reallocations. It is useful to store a fixed amount of
+    /// A last-in first-out list that uses a fixed-size buffer. This implementation allows you to
+    /// add elements without memory reallocations. It is useful to store a fixed amount of
     /// historical data, where [0] always points to the latest entry.
     /// </summary>
-    /// <typeparam name="T">The generic type stored in this collection.</typeparam>
-    public class FixedLifoStack<T> : IList<T>
+    /// <typeparam name="T">The generic type stored in this circular buffer.</typeparam>
+    public class FixedLifoList<T> : IList<T>
     {
         /// <summary>The internal fixed buffer that contains all data.</summary>
-        private T[] buffer;
+        private readonly T[] buffer;
         /// <summary>The amount of items in the circular buffer.</summary>
         private int count;
         /// <summary>The current index into the circular buffer, pointing to the current item.</summary>
@@ -42,7 +42,7 @@ namespace OOLaboratories.Collections
 
         /// <summary>Creates a new collection of the specified fixed capacity.</summary>
         /// <param name="capacity">The fixed capacity of the collection.</param>
-        public FixedLifoStack(int capacity)
+        public FixedLifoList(int capacity)
         {
             if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity), "The collection capacity must be greater than zero.");
             buffer = new T[capacity];
