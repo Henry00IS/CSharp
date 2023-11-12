@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace OOLaboratories.Collections
 {
@@ -66,8 +67,46 @@ namespace OOLaboratories.Collections
         /// <param name="original">The bit array to be copied into this new instance.</param>
         public BitArray(BitArray original)
         {
+            if (original == null) throw new ArgumentNullException(nameof(original));
+
             _Data = (uint[])original._Data.Clone();
             _Size = original._Size;
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="BitArray"/> and copies the bits from the given <see
+        /// cref="uint[]"/> array.
+        /// </summary>
+        /// <param name="original">The array to be copied into this new instance.</param>
+        public BitArray(uint[] original)
+        {
+            if (original == null) throw new ArgumentNullException(nameof(original));
+
+            _Data = (uint[])original.Clone();
+            _Size = _Data.Length * 32;
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="BitArray"/> and copies the bits from the given <see
+        /// cref="uint[]"/> array.
+        /// </summary>
+        /// <param name="original">The array to be copied into this new instance.</param>
+        /// <param name="size">The size of the array in bits to be copied.</param>
+        public BitArray(uint[] original, int size)
+        {
+            if (original == null) throw new ArgumentNullException(nameof(original));
+            if (size < 0) throw new ArgumentOutOfRangeException(nameof(size), "Non-negative number required.");
+            if (size == 0) { _Data = new uint[0]; _Size = 0; return; }
+
+            // only copy the 32-bit unsigned integers that we need.
+            var length = CalculateDataLength(size);
+            _Data = new uint[length];
+            _Size = size;
+            Array.Copy(original, _Data, length);
+
+            // figure out how many bits are unused at the end and set them to 0.
+            var unusedBitsCount = 31 - ((size - 1) % 32);
+            _Data[_Data.Length - 1] &= uint.MaxValue << unusedBitsCount;
         }
 
         /// <summary>Calculates the 32-bit array length required to fit the amount of bits inside.</summary>
@@ -107,6 +146,20 @@ namespace OOLaboratories.Collections
         /// <summary>Retrieves a <see cref="uint[]"/> containing all of the bits in the array.</summary>
         /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
         public uint[] ToUInt32Array() => (uint[])_Data.Clone();
+
+        /// <summary>
+        /// Returns a string that represents the current object. The one-dimensional string of bits.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            var sb = new StringBuilder(_Size);
+
+            for (int i = 0; i < _Size; i++)
+                sb.Append(this[i] ? "1" : "0");
+
+            return sb.ToString();
+        }
 
         #region Setting and Getting Bytes, Integers and Floats
 

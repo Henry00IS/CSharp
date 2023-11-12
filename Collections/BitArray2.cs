@@ -24,6 +24,7 @@
 
 using OOLaboratories.Collections;
 using System;
+using System.Text;
 
 namespace BitArrays
 {
@@ -80,6 +81,9 @@ namespace BitArrays
         /// </exception>
         public BitArray2(BitArray bits, int width, int height)
         {
+            if (bits == null) throw new ArgumentNullException(nameof(bits));
+            if (width < 0) throw new ArgumentOutOfRangeException(nameof(width), "Non-negative number required.");
+            if (height < 0) throw new ArgumentOutOfRangeException(nameof(height), "Non-negative number required.");
             if (width * height != bits.Length) throw new ArgumentOutOfRangeException("width,height", "The width and height must match the amount of bits in the given bit array.");
             _Width = width;
             _Height = height;
@@ -94,9 +98,21 @@ namespace BitArrays
         /// <param name="original">The bit array to be copied into this new instance.</param>
         public BitArray2(BitArray2 original)
         {
+            if (original == null) throw new ArgumentNullException(nameof(original));
             _Bits = original.ToBitArray();
             _Width = original._Width;
             _Height = original._Height;
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="BitArray2"/> and copies the bits from the given <see
+        /// cref="uint[]"/> array.
+        /// </summary>
+        /// <param name="original">The array to be copied into this new instance.</param>
+        /// <param name="width">The amount of bits to be stored in the array horizontally.</param>
+        /// <param name="height">The amount of bits to be stored in the array vertically.</param>
+        public BitArray2(uint[] original, int width, int height) : this(new BitArray(original, width * height), width, height)
+        {
         }
 
         /// <summary>
@@ -126,6 +142,26 @@ namespace BitArrays
         /// <summary>Retrieves a <see cref="uint[]"/> containing all of the bits in the array.</summary>
         /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
         public uint[] ToUInt32Array() => _Bits.ToUInt32Array();
+
+        /// <summary>
+        /// Returns a string that represents the current object. The two-dimensional grid of bits.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            var nl = Environment.NewLine;
+            var sb = new StringBuilder(_Bits.Length + _Height * nl.Length);
+
+            for (int y = 0; y < _Height; y++)
+            {
+                for (int x = 0; x < _Width; x++)
+                    sb.Append(this[x, y] ? "1" : "0");
+                sb.Append(nl);
+            }
+            sb.Remove(sb.Length - nl.Length, nl.Length);
+
+            return sb.ToString();
+        }
 
         #region Setting and Getting Bytes, Integers and Floats
 
