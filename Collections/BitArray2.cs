@@ -123,6 +123,12 @@ namespace BitArrays
             }
         }
 
+        /// <summary>Retrieves a <see cref="uint[]"/> containing all of the bits in the array.</summary>
+        /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
+        public uint[] ToUInt32Array() => _Bits.ToUInt32Array();
+
+        #region Setting and Getting Bytes, Integers and Floats
+
         /// <summary>Reads 8 bits starting at the specified bit array index as an unsigned byte.</summary>
         /// <param name="x">The X-Coordinate in the bit array to start reading at.</param>
         /// <param name="y">The Y-Coordinate in the bit array to start reading at.</param>
@@ -323,6 +329,26 @@ namespace BitArrays
             _Bits.SetSingle(x + y * _Width, value);
         }
 
+        /// <summary>Reads 32 bits starting at the specified bit array index as a single-precision floating-point value in big-endian order.</summary>
+        /// <param name="x">The X-Coordinate in the bit array to start writing at.</param>
+		/// <param name="y">The Y-Coordinate in the bit array to start writing at.</param>
+        /// <returns>The 32-bit single-precision floating-point number.</returns>
+        public float GetSingleBigEndian(int x, int y)
+        {
+            if (x < 0 || x >= _Width || y < 0 || y >= _Height) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+            return _Bits.GetSingleBigEndian(x + y * _Width);
+        }
+
+        /// <summary>Reads 32 bits starting at the specified bit array index as a single-precision floating-point value in big-endian order.</summary>
+        /// <param name="x">The X-Coordinate in the bit array to start writing at.</param>
+		/// <param name="y">The Y-Coordinate in the bit array to start writing at.</param>
+        /// <returns>The 32-bit single-precision floating-point number.</returns>
+        public void SetSingleBigEndian(int x, int y, float value)
+        {
+            if (x < 0 || x >= _Width || y < 0 || y >= _Height) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+            _Bits.SetSingleBigEndian(x + y * _Width, value);
+        }
+
         /// <summary>Reads 64 bits starting at the specified bit array index as an unsigned integer.</summary>
         /// <param name="x">The X-Coordinate in the bit array to start reading at.</param>
 		/// <param name="y">The Y-Coordinate in the bit array to start reading at.</param>
@@ -422,6 +448,28 @@ namespace BitArrays
             if (x < 0 || x >= _Width || y < 0 || y >= _Height) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
             _Bits.SetDouble(x + y * _Width, value);
         }
+
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="x">The X-Coordinate in the bit array to start writing at.</param>
+		/// <param name="y">The Y-Coordinate in the bit array to start writing at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public double GetDoubleBigEndian(int x, int y)
+        {
+            if (x < 0 || x >= _Width || y < 0 || y >= _Height) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+            return _Bits.GetDoubleBigEndian(x + y * _Width);
+        }
+
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="x">The X-Coordinate in the bit array to start writing at.</param>
+		/// <param name="y">The Y-Coordinate in the bit array to start writing at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public void SetDoubleBigEndian(int x, int y, double value)
+        {
+            if (x < 0 || x >= _Width || y < 0 || y >= _Height) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+            _Bits.SetDoubleBigEndian(x + y * _Width, value);
+        }
+
+        #endregion Setting and Getting Bytes, Integers and Floats
 
         #region ICloneable Implementation
 

@@ -104,6 +104,12 @@ namespace OOLaboratories.Collections
             }
         }
 
+        /// <summary>Retrieves a <see cref="uint[]"/> containing all of the bits in the array.</summary>
+        /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
+        public uint[] ToUInt32Array() => (uint[])_Data.Clone();
+
+        #region Setting and Getting Bytes, Integers and Floats
+
         /// <summary>Reads 8 bits starting at the specified bit array index as an unsigned byte.</summary>
         /// <param name="index">The bit array index to start reading at.</param>
         /// <returns>The 8-bit unsigned integer.</returns>
@@ -132,7 +138,7 @@ namespace OOLaboratories.Collections
         public ushort GetUInt16(int index)
         {
             if (index < 0 || index > _Size - 16) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt16(new byte[] { GetByte(index), GetByte(index + 8) }, 0);
+            return new Bytes64(GetByte(index), GetByte(index + 8)).vUInt16;
         }
 
         /// <summary>Writes 16 bits starting at the specified bit array index as an unsigned integer.</summary>
@@ -140,9 +146,9 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 16-bit unsigned integer.</param>
         public void SetUInt16(int index, ushort value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[0]);
-            SetByte(index + 8, bytes[1]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b0);
+            SetByte(index + 8, bytes.b1);
         }
 
         /// <summary>Reads 16 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -151,7 +157,7 @@ namespace OOLaboratories.Collections
         public ushort GetUInt16BigEndian(int index)
         {
             if (index < 0 || index > _Size - 16) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt16(new byte[] { GetByte(index + 8), GetByte(index) }, 0);
+            return new Bytes64(GetByte(index + 8), GetByte(index)).vUInt16;
         }
 
         /// <summary>Writes 16 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -159,9 +165,9 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 16-bit unsigned integer.</param>
         public void SetUInt16BigEndian(int index, ushort value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[1]);
-            SetByte(index + 8, bytes[0]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b1);
+            SetByte(index + 8, bytes.b0);
         }
 
         /// <summary>Reads 16 bits starting at the specified bit array index as a signed integer.</summary>
@@ -190,7 +196,7 @@ namespace OOLaboratories.Collections
         public uint GetUInt32(int index)
         {
             if (index < 0 || index > _Size - 32) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt32(new byte[] { GetByte(index), GetByte(index + 8), GetByte(index + 16), GetByte(index + 24) }, 0);
+            return new Bytes64(GetByte(index), GetByte(index + 8), GetByte(index + 16), GetByte(index + 24)).vUInt32;
         }
 
         /// <summary>Writes 32 bits starting at the specified bit array index as an unsigned integer.</summary>
@@ -198,11 +204,11 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 32-bit unsigned integer.</param>
         public void SetUInt32(int index, uint value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[0]);
-            SetByte(index + 8, bytes[1]);
-            SetByte(index + 16, bytes[2]);
-            SetByte(index + 24, bytes[3]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b0);
+            SetByte(index + 8, bytes.b1);
+            SetByte(index + 16, bytes.b2);
+            SetByte(index + 24, bytes.b3);
         }
 
         /// <summary>Reads 32 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -211,7 +217,7 @@ namespace OOLaboratories.Collections
         public uint GetUInt32BigEndian(int index)
         {
             if (index < 0 || index > _Size - 32) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt32(new byte[] { GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index) }, 0);
+            return new Bytes64(GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index)).vUInt32;
         }
 
         /// <summary>Writes 32 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -219,11 +225,11 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 32-bit unsigned integer.</param>
         public void SetUInt32BigEndian(int index, uint value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[3]);
-            SetByte(index + 8, bytes[2]);
-            SetByte(index + 16, bytes[1]);
-            SetByte(index + 24, bytes[0]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b3);
+            SetByte(index + 8, bytes.b2);
+            SetByte(index + 16, bytes.b1);
+            SetByte(index + 24, bytes.b0);
         }
 
         /// <summary>Reads 32 bits starting at the specified bit array index as a signed integer.</summary>
@@ -249,12 +255,33 @@ namespace OOLaboratories.Collections
         /// <summary>Reads 32 bits starting at the specified bit array index as a single-precision floating-point value.</summary>
         /// <param name="index">The bit array index to start reading at.</param>
         /// <returns>The 32-bit single-precision floating-point number.</returns>
-        public float GetSingle(int index) => FloatToInt.Convert(GetUInt32(index));
+        public float GetSingle(int index) => new Bytes64(GetUInt32(index)).vSingle;
 
         /// <summary>Writes 32 bits starting at the specified bit array index as a single-precision floating-point value.</summary>
         /// <param name="index">The bit array index to start writing at.</param>
         /// <param name="value">The 32-bit single-precision floating-point number.</param>
-        public void SetSingle(int index, float value) => SetUInt32(index, FloatToInt.Convert(value));
+        public void SetSingle(int index, float value) => SetUInt32(index, new Bytes64(value).vUInt32);
+
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="index">The bit array index to start reading at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public float GetSingleBigEndian(int index)
+        {
+            if (index < 0 || index > _Size - 64) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
+            return new Bytes64(GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index)).vSingle;
+        }
+
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="index">The bit array index to start reading at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public void SetSingleBigEndian(int index, float value)
+        {
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b3);
+            SetByte(index + 8, bytes.b2);
+            SetByte(index + 16, bytes.b1);
+            SetByte(index + 24, bytes.b0);
+        }
 
         /// <summary>Reads 64 bits starting at the specified bit array index as an unsigned integer.</summary>
         /// <param name="index">The bit array index to start reading at.</param>
@@ -262,7 +289,7 @@ namespace OOLaboratories.Collections
         public ulong GetUInt64(int index)
         {
             if (index < 0 || index > _Size - 64) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt64(new byte[] { GetByte(index), GetByte(index + 8), GetByte(index + 16), GetByte(index + 24), GetByte(index + 32), GetByte(index + 40), GetByte(index + 48), GetByte(index + 56) }, 0);
+            return new Bytes64(GetByte(index), GetByte(index + 8), GetByte(index + 16), GetByte(index + 24), GetByte(index + 32), GetByte(index + 40), GetByte(index + 48), GetByte(index + 56)).vUInt64;
         }
 
         /// <summary>Writes 64 bits starting at the specified bit array index as an unsigned integer.</summary>
@@ -270,15 +297,15 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 64-bit unsigned integer.</param>
         public void SetUInt64(int index, ulong value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[0]);
-            SetByte(index + 8, bytes[1]);
-            SetByte(index + 16, bytes[2]);
-            SetByte(index + 24, bytes[3]);
-            SetByte(index + 32, bytes[4]);
-            SetByte(index + 40, bytes[5]);
-            SetByte(index + 48, bytes[6]);
-            SetByte(index + 56, bytes[7]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b0);
+            SetByte(index + 8, bytes.b1);
+            SetByte(index + 16, bytes.b2);
+            SetByte(index + 24, bytes.b3);
+            SetByte(index + 32, bytes.b4);
+            SetByte(index + 40, bytes.b5);
+            SetByte(index + 48, bytes.b6);
+            SetByte(index + 56, bytes.b7);
         }
 
         /// <summary>Reads 64 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -287,7 +314,7 @@ namespace OOLaboratories.Collections
         public ulong GetUInt64BigEndian(int index)
         {
             if (index < 0 || index > _Size - 64) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
-            return BitConverter.ToUInt64(new byte[] { GetByte(index + 56), GetByte(index + 48), GetByte(index + 40), GetByte(index + 32), GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index) }, 0);
+            return new Bytes64(GetByte(index + 56), GetByte(index + 48), GetByte(index + 40), GetByte(index + 32), GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index)).vUInt64;
         }
 
         /// <summary>Writes 64 bits starting at the specified bit array index as an unsigned integer in big-endian order.</summary>
@@ -295,15 +322,15 @@ namespace OOLaboratories.Collections
         /// <param name="value">The 64-bit unsigned integer.</param>
         public void SetUInt64BigEndian(int index, ulong value)
         {
-            var bytes = BitConverter.GetBytes(value);
-            SetByte(index, bytes[7]);
-            SetByte(index + 8, bytes[6]);
-            SetByte(index + 16, bytes[5]);
-            SetByte(index + 24, bytes[4]);
-            SetByte(index + 32, bytes[3]);
-            SetByte(index + 40, bytes[2]);
-            SetByte(index + 48, bytes[1]);
-            SetByte(index + 56, bytes[0]);
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b7);
+            SetByte(index + 8, bytes.b6);
+            SetByte(index + 16, bytes.b5);
+            SetByte(index + 24, bytes.b4);
+            SetByte(index + 32, bytes.b3);
+            SetByte(index + 40, bytes.b2);
+            SetByte(index + 48, bytes.b1);
+            SetByte(index + 56, bytes.b0);
         }
 
         /// <summary>Reads 64 bits starting at the specified bit array index as a signed integer.</summary>
@@ -329,14 +356,208 @@ namespace OOLaboratories.Collections
         /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value.</summary>
         /// <param name="index">The bit array index to start reading at.</param>
         /// <returns>The 64-bit double-precision floating-point number.</returns>
-        public double GetDouble(int index) => DoubleToInt.Convert(GetUInt64(index));
+        public double GetDouble(int index) => new Bytes64(GetUInt64(index)).vDouble;
 
         /// <summary>Writes 64 bits starting at the specified bit array index as a double-precision floating-point value.</summary>
         /// <param name="index">The bit array index to start writing at.</param>
         /// <param name="value">The 64-bit double-precision floating-point number.</param>
-        public void SetDouble(int index, double value) => SetUInt64(index, DoubleToInt.Convert(value));
+        public void SetDouble(int index, double value) => SetUInt64(index, new Bytes64(value).vUInt64);
 
-        #region IReadOnlyCollection<int> Implementation
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="index">The bit array index to start reading at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public double GetDoubleBigEndian(int index)
+        {
+            if (index < 0 || index > _Size - 64) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
+            return new Bytes64(GetByte(index + 56), GetByte(index + 48), GetByte(index + 40), GetByte(index + 32), GetByte(index + 24), GetByte(index + 16), GetByte(index + 8), GetByte(index)).vDouble;
+        }
+
+        /// <summary>Reads 64 bits starting at the specified bit array index as a double-precision floating-point value in big-endian order.</summary>
+        /// <param name="index">The bit array index to start reading at.</param>
+        /// <returns>The 64-bit double-precision floating-point number.</returns>
+        public void SetDoubleBigEndian(int index, double value)
+        {
+            var bytes = new Bytes64(value);
+            SetByte(index, bytes.b7);
+            SetByte(index + 8, bytes.b6);
+            SetByte(index + 16, bytes.b5);
+            SetByte(index + 24, bytes.b4);
+            SetByte(index + 32, bytes.b3);
+            SetByte(index + 40, bytes.b2);
+            SetByte(index + 48, bytes.b1);
+            SetByte(index + 56, bytes.b0);
+        }
+
+        /// <summary>
+        /// Exposes 64 bits of memory as bytes that can be read as several different data types.
+        /// <para>Inspired by: https://stackoverflow.com/a/59273138</para>
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        private struct Bytes64
+        {
+            [FieldOffset(0)] public byte b0;
+            [FieldOffset(1)] public byte b1;
+            [FieldOffset(2)] public byte b2;
+            [FieldOffset(3)] public byte b3;
+            [FieldOffset(4)] public byte b4;
+            [FieldOffset(5)] public byte b5;
+            [FieldOffset(6)] public byte b6;
+            [FieldOffset(7)] public byte b7;
+
+            [FieldOffset(0)] public ushort vUInt16;
+            [FieldOffset(0)] public uint vUInt32;
+            [FieldOffset(0)] public ulong vUInt64;
+            [FieldOffset(0)] public float vSingle;
+            [FieldOffset(0)] public double vDouble;
+
+            public Bytes64(byte b0, byte b1, byte b2, byte b3, byte b4, byte b5, byte b6, byte b7)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+
+                this.b0 = b0;
+                this.b1 = b1;
+                this.b2 = b2;
+                this.b3 = b3;
+                this.b4 = b4;
+                this.b5 = b5;
+                this.b6 = b6;
+                this.b7 = b7;
+            }
+
+            public Bytes64(byte b0, byte b1)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                this.b0 = b0;
+                this.b1 = b1;
+            }
+
+            public Bytes64(byte b0, byte b1, byte b2, byte b3)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                this.b0 = b0;
+                this.b1 = b1;
+                this.b2 = b2;
+                this.b3 = b3;
+            }
+
+            public Bytes64(ushort value)
+            {
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b0 = 0; // required to be initialized by the C# compiler.
+                b1 = 0; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                vUInt16 = value;
+            }
+
+            public Bytes64(uint value)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b0 = 0; // required to be initialized by the C# compiler.
+                b1 = 0; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                vUInt32 = value;
+            }
+
+            public Bytes64(ulong value)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b0 = 0; // required to be initialized by the C# compiler.
+                b1 = 0; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                vUInt64 = value;
+            }
+
+            public Bytes64(float value)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vDouble = 0d; // required to be initialized by the C# compiler.
+                b0 = 0; // required to be initialized by the C# compiler.
+                b1 = 0; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                vSingle = value;
+            }
+
+            public Bytes64(double value)
+            {
+                vUInt16 = 0; // required to be initialized by the C# compiler.
+                vUInt32 = 0; // required to be initialized by the C# compiler.
+                vUInt64 = 0; // required to be initialized by the C# compiler.
+                vSingle = 0f; // required to be initialized by the C# compiler.
+                b0 = 0; // required to be initialized by the C# compiler.
+                b1 = 0; // required to be initialized by the C# compiler.
+                b2 = 0; // required to be initialized by the C# compiler.
+                b3 = 0; // required to be initialized by the C# compiler.
+                b4 = 0; // required to be initialized by the C# compiler.
+                b5 = 0; // required to be initialized by the C# compiler.
+                b6 = 0; // required to be initialized by the C# compiler.
+                b7 = 0; // required to be initialized by the C# compiler.
+
+                vDouble = value;
+            }
+        }
+
+        #endregion Setting and Getting Bytes, Integers and Floats
+
+        #region IReadOnlyCollection<bool> Implementation
 
         int IReadOnlyCollection<bool>.Count => _Size;
 
@@ -351,7 +572,7 @@ namespace OOLaboratories.Collections
             return GetEnumerator();
         }
 
-        #endregion IReadOnlyCollection<int> Implementation
+        #endregion IReadOnlyCollection<bool> Implementation
 
         #region ICloneable Implementation
 
@@ -361,41 +582,5 @@ namespace OOLaboratories.Collections
         }
 
         #endregion ICloneable Implementation
-
-        // https://stackoverflow.com/a/59273138
-        [StructLayout(LayoutKind.Explicit)]
-        private struct FloatToInt
-        {
-            [FieldOffset(0)] private float f;
-            [FieldOffset(0)] private uint i;
-
-            public static uint Convert(float value)
-            {
-                return new FloatToInt { f = value }.i;
-            }
-
-            public static float Convert(uint value)
-            {
-                return new FloatToInt { i = value }.f;
-            }
-        }
-
-        // https://stackoverflow.com/a/59273138
-        [StructLayout(LayoutKind.Explicit)]
-        private struct DoubleToInt
-        {
-            [FieldOffset(0)] private double f;
-            [FieldOffset(0)] private ulong i;
-
-            public static ulong Convert(double value)
-            {
-                return new DoubleToInt { f = value }.i;
-            }
-
-            public static double Convert(ulong value)
-            {
-                return new DoubleToInt { i = value }.f;
-            }
-        }
     }
 }
