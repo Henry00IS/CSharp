@@ -105,8 +105,7 @@ namespace OOLaboratories.Collections
             Array.Copy(original, _Data, length);
 
             // figure out how many bits are unused at the end and set them to 0.
-            var unusedBitsCount = 31 - ((size - 1) % 32);
-            _Data[_Data.Length - 1] &= uint.MaxValue << unusedBitsCount;
+            TrimUnusedBits();
         }
 
         /// <summary>Calculates the 32-bit array length required to fit the amount of bits inside.</summary>
@@ -115,6 +114,16 @@ namespace OOLaboratories.Collections
         private int CalculateDataLength(int bits)
         {
             return bits > 0 ? (((bits - 1) / 32) + 1) : 0;
+        }
+
+        /// <summary>Sets the right-most bits in memory that are unused to zero.</summary>
+        private void TrimUnusedBits()
+        {
+            if (_Size == 0) return;
+
+            // figure out how many bits are unused at the end and set them to 0.
+            var unusedBitsCount = 31 - ((_Size - 1) % 32);
+            _Data[_Data.Length - 1] &= uint.MaxValue << unusedBitsCount;
         }
 
         /// <summary>Gets the total number of bits in the array.</summary>
@@ -159,6 +168,103 @@ namespace OOLaboratories.Collections
                 sb.Append(this[i] ? "1" : "0");
 
             return sb.ToString();
+        }
+
+        /// <summary>Sets all bits in the <see cref="BitArray"/> to the specified value.</summary>
+        /// <param name="value">The boolean value to assign to all bits.</param>
+        public void SetAll(bool value)
+        {
+            uint fill = value ? uint.MaxValue : 0;
+
+            // iterate over the full 32-bit elements to make this process faster.
+            for (int i = 0; i < _Data.Length; i++)
+                _Data[i] = fill;
+
+            // figure out how many bits are unused at the end and keep them set to 0.
+            TrimUnusedBits();
+        }
+
+        /// <summary>
+        /// Inverts all the bit values in the <see cref="BitArray"/>, so that bits set to true 1 are
+        /// changed to false 0, and bits set to false 0 are changed to true 1.
+        /// </summary>
+        public void Not()
+        {
+            // iterate over the full 32-bit elements to make this process faster.
+            for (int i = 0; i < _Data.Length; i++)
+                _Data[i] = ~_Data[i];
+
+            // figure out how many bits are unused at the end and keep them set to 0.
+            TrimUnusedBits();
+        }
+
+        /// <summary>
+        /// Performs the bitwise AND operation between the bits of the current <see
+        /// cref="BitArray"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray"/> object will be modified to store the result of the bitwise AND operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise AND operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray"/> do not have the same number of bits.
+        /// </exception>
+        public void And(BitArray value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (_Size != value._Size) throw new ArgumentException("The value and the current " + nameof(BitArray) + " do not have the same number of bits.");
+
+            // iterate over the full 32-bit elements to make this process faster.
+            for (int i = 0; i < _Data.Length; i++)
+                _Data[i] &= value._Data[i];
+
+            // figure out how many bits are unused at the end and keep them set to 0.
+            TrimUnusedBits();
+        }
+
+        /// <summary>
+        /// Performs the bitwise OR operation between the bits of the current <see
+        /// cref="BitArray"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray"/> object will be modified to store the result of the bitwise OR operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise OR operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray"/> do not have the same number of bits.
+        /// </exception>
+        public void Or(BitArray value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (_Size != value._Size) throw new ArgumentException("The value and the current " + nameof(BitArray) + " do not have the same number of bits.");
+
+            // iterate over the full 32-bit elements to make this process faster.
+            for (int i = 0; i < _Data.Length; i++)
+                _Data[i] |= value._Data[i];
+
+            // figure out how many bits are unused at the end and keep them set to 0.
+            TrimUnusedBits();
+        }
+
+        /// <summary>
+        /// Performs the bitwise XOR operation between the bits of the current <see
+        /// cref="BitArray"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray"/> object will be modified to store the result of the bitwise XOR operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise XOR operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray"/> do not have the same number of bits.
+        /// </exception>
+        public void Xor(BitArray value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (_Size != value._Size) throw new ArgumentException("The value and the current " + nameof(BitArray) + " do not have the same number of bits.");
+
+            // iterate over the full 32-bit elements to make this process faster.
+            for (int i = 0; i < _Data.Length; i++)
+                _Data[i] ^= value._Data[i];
+
+            // figure out how many bits are unused at the end and keep them set to 0.
+            TrimUnusedBits();
         }
 
         #region Setting and Getting Bytes, Integers and Floats

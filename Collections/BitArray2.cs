@@ -163,6 +163,67 @@ namespace BitArrays
             return sb.ToString();
         }
 
+        /// <summary>Sets all bits in the <see cref="BitArray2"/> to the specified value.</summary>
+        /// <param name="value">The boolean value to assign to all bits.</param>
+        public void SetAll(bool value)
+        {
+            _Bits.SetAll(value);
+        }
+
+        /// <summary>
+        /// Inverts all the bit values in the <see cref="BitArray2"/>, so that bits set to true 1 are
+        /// changed to false 0, and bits set to false 0 are changed to true 1.
+        /// </summary>
+        public void Not()
+        {
+            _Bits.Not();
+        }
+
+        /// <summary>
+        /// Performs the bitwise AND operation between the bits of the current <see
+        /// cref="BitArray2"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray2"/> object will be modified to store the result of the bitwise AND operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise AND operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
+        /// </exception>
+        public void And(BitArray2 value)
+        {
+            _Bits.And(value._Bits);
+        }
+
+        /// <summary>
+        /// Performs the bitwise OR operation between the bits of the current <see
+        /// cref="BitArray2"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray2"/> object will be modified to store the result of the bitwise OR operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise OR operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
+        /// </exception>
+        public void Or(BitArray2 value)
+        {
+            _Bits.Or(value._Bits);
+        }
+
+        /// <summary>
+        /// Performs the bitwise XOR operation between the bits of the current <see
+        /// cref="BitArray2"/> object and the corresponding bits in the specified array. The current
+        /// <see cref="BitArray2"/> object will be modified to store the result of the bitwise XOR operation.
+        /// </summary>
+        /// <param name="value">The array with which to perform the bitwise XOR operation.</param>
+        /// <exception cref="ArgumentNullException">Value is null.</exception>
+        /// <exception cref="ArgumentException">
+        /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
+        /// </exception>
+        public void Xor(BitArray2 value)
+        {
+            _Bits.Xor(value._Bits);
+        }
+
         #region Setting and Getting Bytes, Integers and Floats
 
         /// <summary>Reads 8 bits starting at the specified bit array index as an unsigned byte.</summary>
