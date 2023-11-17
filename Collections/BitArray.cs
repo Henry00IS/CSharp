@@ -345,7 +345,7 @@ namespace OOLaboratories.Collections
         {
             if (index < 0 || index > _Size - 8) throw new IndexOutOfRangeException("Index was outside; or writing beyond the bounds of the array.");
             for (int i = 0; i < 8; i++)
-                this[index + i] = (value & (1 << (7 - i))) > 0;
+                this[index + i] = (value & (1 << i)) > 0;
         }
 
         /// <summary>Reads 16 bits starting at the specified bit array index as an unsigned integer.</summary>
