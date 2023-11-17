@@ -143,6 +143,10 @@ namespace BitArrays
         /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
         public uint[] ToUInt32Array() => _Bits.ToUInt32Array();
 
+        /// <summary>Retrieves a <see cref="byte[]"/> containing all of the bits in the array.</summary>
+        /// <returns>The <see cref="byte[]"/> containing all of the bits.</returns>
+        public byte[] ToByteArray() => _Bits.ToByteArray();
+
         /// <summary>
         /// Returns a string that represents the current object. The two-dimensional grid of bits.
         /// </summary>
@@ -162,6 +166,8 @@ namespace BitArrays
 
             return sb.ToString();
         }
+
+        #region Bit Operators
 
         /// <summary>Sets all bits in the <see cref="BitArray2"/> to the specified value.</summary>
         /// <param name="value">The boolean value to assign to all bits.</param>
@@ -223,6 +229,8 @@ namespace BitArrays
         {
             _Bits.Xor(value._Bits);
         }
+
+        #endregion Bit Operators
 
         #region Setting and Getting Bytes, Integers and Floats
 

@@ -108,6 +108,42 @@ namespace OOLaboratories.Collections
             TrimUnusedBits();
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="BitArray"/> and copies the bits from the given <see
+        /// cref="byte[]"/> array.
+        /// </summary>
+        /// <param name="original">The array to be copied into this new instance.</param>
+        public BitArray(byte[] original)
+        {
+            if (original == null) throw new ArgumentNullException(nameof(original));
+            _Size = original.Length * 8;
+            _Data = new uint[CalculateDataLength(_Size)];
+
+            int i = 0;
+            int j = 0;
+            while (original.Length - j >= 4)
+            {
+                _Data[i++] = (uint)((original[j] & 0xff) |
+                              ((original[j + 1] & 0xff) << 8) |
+                              ((original[j + 2] & 0xff) << 16) |
+                              ((original[j + 3] & 0xff) << 24));
+                j += 4;
+            }
+
+            switch (original.Length - j)
+            {
+                case 3:
+                    _Data[i] = (uint)((original[j + 2] & 0xff) << 16);
+                    goto case 2;
+                case 2:
+                    _Data[i] |= (uint)((original[j + 1] & 0xff) << 8);
+                    goto case 1;
+                case 1:
+                    _Data[i] |= (uint)(original[j] & 0xff);
+                    break;
+            }
+        }
+
         /// <summary>Calculates the 32-bit array length required to fit the amount of bits inside.</summary>
         /// <param name="bits">The amount of bits to fit into the array.</param>
         /// <returns>The number of 32-bit elements required.</returns>
@@ -123,7 +159,7 @@ namespace OOLaboratories.Collections
 
             // figure out how many bits are unused at the end and set them to 0.
             var unusedBitsCount = 31 - ((_Size - 1) % 32);
-            _Data[_Data.Length - 1] &= uint.MaxValue << unusedBitsCount;
+            _Data[_Data.Length - 1] &= uint.MaxValue >> unusedBitsCount;
         }
 
         /// <summary>Gets the total number of bits in the array.</summary>
@@ -140,21 +176,38 @@ namespace OOLaboratories.Collections
             get
             {
                 if (index >= _Size) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
-                return (_Data[index / 32] & (1 << ((31 - index) % 32))) > 0;
+                return (_Data[index / 32] & (1 << (index % 32))) != 0;
             }
             set
             {
                 if (index < 0 || index >= _Size) throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
                 if (value)
-                    _Data[index / 32] |= (uint)1 << ((31 - index) % 32);
+                    _Data[index / 32] |= (uint)1 << (index % 32);
                 else
-                    _Data[index / 32] &= ~((uint)1 << ((31 - index) % 32));
+                    _Data[index / 32] &= ~((uint)1 << (index % 32));
             }
         }
 
         /// <summary>Retrieves a <see cref="uint[]"/> containing all of the bits in the array.</summary>
         /// <returns>The <see cref="uint[]"/> containing all of the bits.</returns>
         public uint[] ToUInt32Array() => (uint[])_Data.Clone();
+
+        /// <summary>Retrieves a <see cref="byte[]"/> containing all of the bits in the array.</summary>
+        /// <returns>The <see cref="byte[]"/> containing all of the bits.</returns>
+        public byte[] ToByteArray()
+        {
+            var result = new byte[_Data.Length * 4];
+            var j = 0;
+            for (int i = 0; i < _Data.Length; i++)
+            {
+                var bytes = new Bytes64(_Data[i]);
+                result[j++] = bytes.b0;
+                result[j++] = bytes.b1;
+                result[j++] = bytes.b2;
+                result[j++] = bytes.b3;
+            }
+            return result;
+        }
 
         /// <summary>
         /// Returns a string that represents the current object. The one-dimensional string of bits.
@@ -169,6 +222,8 @@ namespace OOLaboratories.Collections
 
             return sb.ToString();
         }
+
+        #region Bit Operators
 
         /// <summary>Sets all bits in the <see cref="BitArray"/> to the specified value.</summary>
         /// <param name="value">The boolean value to assign to all bits.</param>
@@ -267,6 +322,8 @@ namespace OOLaboratories.Collections
             TrimUnusedBits();
         }
 
+        #endregion Bit Operators
+
         #region Setting and Getting Bytes, Integers and Floats
 
         /// <summary>Reads 8 bits starting at the specified bit array index as an unsigned byte.</summary>
@@ -277,7 +334,7 @@ namespace OOLaboratories.Collections
             if (index < 0 || index > _Size - 8) throw new IndexOutOfRangeException("Index was outside; or reading beyond the bounds of the array.");
             byte result = 0;
             for (int i = 0; i < 8; i++)
-                result |= (byte)((this[index + i] ? 1 : 0) << (7 - i));
+                result |= (byte)((this[index + i] ? 1 : 0) << i);
             return result;
         }
 
