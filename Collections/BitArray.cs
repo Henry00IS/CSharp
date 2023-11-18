@@ -333,6 +333,7 @@ namespace OOLaboratories.Collections
         /// </exception>
         public void Shl(int amount)
         {
+            if (_Size == 0) return;
             if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
 
             // this is slow and could be made faster with full 32-bit element shifts.
@@ -356,6 +357,7 @@ namespace OOLaboratories.Collections
         /// </exception>
         public void Shr(int amount)
         {
+            if (_Size == 0) return;
             if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
 
             // this is slow and could be made faster with full 32-bit element shifts.
@@ -365,6 +367,54 @@ namespace OOLaboratories.Collections
                 for (int index = bits; index-- > 0;)
                     this[index + 1] = this[index];
                 this[0] = false;
+            }
+        }
+
+        /// <summary>
+        /// Performs the bitwise left rotate operation on the bits of the current <see
+        /// cref="BitArray"/> object. The bits that slide off the end are fed back into spaces.
+        /// </summary>
+        /// <param name="amount">How many positions to rotate the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Rol(int amount)
+        {
+            if (_Size == 0) return;
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
+
+            // this is slow and could be made faster with full 32-bit element shifts.
+            var bits = _Size - 1;
+            for (int i = 0; i < amount; i++)
+            {
+                var first = this[0];
+                for (int index = 0; index < bits; index++)
+                    this[index] = this[index + 1];
+                this[bits] = first;
+            }
+        }
+
+        /// <summary>
+        /// Performs the bitwise right rotate operation on the bits of the current <see
+        /// cref="BitArray"/> object. The bits that slide off the end are fed back into spaces.
+        /// </summary>
+        /// <param name="amount">How many positions to rotate the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Ror(int amount)
+        {
+            if (_Size == 0) return;
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
+
+            // this is slow and could be made faster with full 32-bit element shifts.
+            var bits = _Size - 1;
+            for (int i = 0; i < amount; i++)
+            {
+                var last = this[bits];
+                for (int index = bits; index-- > 0;)
+                    this[index + 1] = this[index];
+                this[0] = last;
             }
         }
 

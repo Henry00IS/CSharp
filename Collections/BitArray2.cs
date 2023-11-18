@@ -237,6 +237,26 @@ namespace BitArrays
         /// </exception>
         public void Shr(int amount) => _Bits.Shr(amount);
 
+        /// <summary>
+        /// Performs the bitwise left rotate operation on the bits of the current <see
+        /// cref="BitArray2"/> object. The bits that slide off the end are fed back into spaces.
+        /// </summary>
+        /// <param name="amount">How many positions to rotate the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Rol(int amount) => _Bits.Rol(amount);
+
+        /// <summary>
+        /// Performs the bitwise right rotate operation on the bits of the current <see
+        /// cref="BitArray2"/> object. The bits that slide off the end are fed back into spaces.
+        /// </summary>
+        /// <param name="amount">How many positions to rotate the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Ror(int amount) => _Bits.Ror(amount);
+
         #endregion Bit Operators
 
         #region Setting and Getting Bytes, Integers and Floats
