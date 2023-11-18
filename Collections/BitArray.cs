@@ -144,12 +144,13 @@ namespace OOLaboratories.Collections
             }
         }
 
-        /// <summary>Calculates the 32-bit array length required to fit the amount of bits inside.</summary>
+        /// <summary>Calculates the <paramref name="size"/>-bit array length required to fit the amount of bits inside.</summary>
         /// <param name="bits">The amount of bits to fit into the array.</param>
-        /// <returns>The number of 32-bit elements required.</returns>
-        private int CalculateDataLength(int bits)
+        /// <param name="size">The size of an element (by default 32 bits)</param>
+        /// <returns>The number of <paramref name="size"/>-bit elements required.</returns>
+        private int CalculateDataLength(int bits, int size = 32)
         {
-            return bits > 0 ? (((bits - 1) / 32) + 1) : 0;
+            return bits > 0 ? (((bits - 1) / size) + 1) : 0;
         }
 
         /// <summary>Sets the right-most bits in memory that are unused to zero.</summary>
@@ -196,14 +197,18 @@ namespace OOLaboratories.Collections
         /// <returns>The <see cref="byte[]"/> containing all of the bits.</returns>
         public byte[] ToByteArray()
         {
-            var result = new byte[_Data.Length * 4];
+            var result = new byte[CalculateDataLength(_Size, 8)];
             var j = 0;
             for (int i = 0; i < _Data.Length; i++)
             {
                 var bytes = new Bytes64(_Data[i]);
+                if (j >= result.Length) break;
                 result[j++] = bytes.b0;
+                if (j >= result.Length) break;
                 result[j++] = bytes.b1;
+                if (j >= result.Length) break;
                 result[j++] = bytes.b2;
+                if (j >= result.Length) break;
                 result[j++] = bytes.b3;
             }
             return result;
