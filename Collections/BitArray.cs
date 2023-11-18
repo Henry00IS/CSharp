@@ -322,6 +322,52 @@ namespace OOLaboratories.Collections
             TrimUnusedBits();
         }
 
+        /// <summary>
+        /// Performs the bitwise left shift operation on the bits of the current <see
+        /// cref="BitArray"/> object. The bits that slide off the end disappear and the spaces are
+        /// always filled with zeros.
+        /// </summary>
+        /// <param name="amount">How many positions to shift the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Shl(int amount)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
+
+            // this is slow and could be made faster with full 32-bit element shifts.
+            var bits = _Size - 1;
+            for (int i = 0; i < amount; i++)
+            {
+                for (int index = 0; index < bits; index++)
+                    this[index] = this[index + 1];
+                this[bits] = false;
+            }
+        }
+
+        /// <summary>
+        /// Performs the bitwise right shift operation on the bits of the current <see
+        /// cref="BitArray"/> object. The bits that slide off the end disappear and the spaces are
+        /// always filled with zeros.
+        /// </summary>
+        /// <param name="amount">How many positions to shift the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Shr(int amount)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Non-negative number required.");
+
+            // this is slow and could be made faster with full 32-bit element shifts.
+            var bits = _Size - 1;
+            for (int i = 0; i < amount; i++)
+            {
+                for (int index = bits; index-- > 0;)
+                    this[index + 1] = this[index];
+                this[0] = false;
+            }
+        }
+
         #endregion Bit Operators
 
         #region Setting and Getting Bytes, Integers and Floats

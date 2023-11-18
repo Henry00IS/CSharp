@@ -171,19 +171,13 @@ namespace BitArrays
 
         /// <summary>Sets all bits in the <see cref="BitArray2"/> to the specified value.</summary>
         /// <param name="value">The boolean value to assign to all bits.</param>
-        public void SetAll(bool value)
-        {
-            _Bits.SetAll(value);
-        }
+        public void SetAll(bool value) => _Bits.SetAll(value);
 
         /// <summary>
         /// Inverts all the bit values in the <see cref="BitArray2"/>, so that bits set to true 1 are
         /// changed to false 0, and bits set to false 0 are changed to true 1.
         /// </summary>
-        public void Not()
-        {
-            _Bits.Not();
-        }
+        public void Not() => _Bits.Not();
 
         /// <summary>
         /// Performs the bitwise AND operation between the bits of the current <see
@@ -195,10 +189,7 @@ namespace BitArrays
         /// <exception cref="ArgumentException">
         /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
         /// </exception>
-        public void And(BitArray2 value)
-        {
-            _Bits.And(value._Bits);
-        }
+        public void And(BitArray2 value) => _Bits.And(value._Bits);
 
         /// <summary>
         /// Performs the bitwise OR operation between the bits of the current <see
@@ -210,10 +201,7 @@ namespace BitArrays
         /// <exception cref="ArgumentException">
         /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
         /// </exception>
-        public void Or(BitArray2 value)
-        {
-            _Bits.Or(value._Bits);
-        }
+        public void Or(BitArray2 value) => _Bits.Or(value._Bits);
 
         /// <summary>
         /// Performs the bitwise XOR operation between the bits of the current <see
@@ -225,10 +213,29 @@ namespace BitArrays
         /// <exception cref="ArgumentException">
         /// The value and the current <see cref="BitArray2"/> do not have the same number of bits.
         /// </exception>
-        public void Xor(BitArray2 value)
-        {
-            _Bits.Xor(value._Bits);
-        }
+        public void Xor(BitArray2 value) => _Bits.Xor(value._Bits);
+
+        /// <summary>
+        /// Performs the bitwise left shift operation on the bits of the current <see
+        /// cref="BitArray2"/> object. The bits that slide off the end disappear and the spaces are
+        /// always filled with zeros.
+        /// </summary>
+        /// <param name="amount">How many positions to shift the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Shl(int amount) => _Bits.Shl(amount);
+
+        /// <summary>
+        /// Performs the bitwise right shift operation on the bits of the current <see
+        /// cref="BitArray2"/> object. The bits that slide off the end disappear and the spaces are
+        /// always filled with zeros.
+        /// </summary>
+        /// <param name="amount">How many positions to shift the bits by.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The <paramref name="amount"/> can not be a negative number.
+        /// </exception>
+        public void Shr(int amount) => _Bits.Shr(amount);
 
         #endregion Bit Operators
 
