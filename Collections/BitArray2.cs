@@ -259,6 +259,60 @@ namespace BitArrays
 
         #endregion Bit Operators
 
+        #region Drawing Plotters
+
+        /// <summary>
+        /// Plots a line using Bresenham's line algorithm setting the bits to <paramref name="value"/>.
+        /// </summary>
+        /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the line.</param>
+        public void PlotLine(int x1, int y1, int x2, int y2, bool value)
+        {
+            var dx = Math.Abs(x2 - x1);
+            var sx = x1 < x2 ? 1 : -1;
+            var dy = -Math.Abs(y2 - y1);
+            var sy = y1 < y2 ? 1 : -1;
+            var error = dx + dy;
+
+            while (true)
+            {
+                this[x1, y1] = value;
+                if (x1 == x2 && y1 == y2) return;
+                var e2 = 2 * error;
+                if (e2 >= dy)
+                {
+                    if (x1 == x2) return;
+                    error += dy;
+                    x1 += sx;
+                }
+                if (e2 <= dx)
+                {
+                    if (y1 == y2) return;
+                    error += dx;
+                    y1 += sy;
+                }
+            }
+        }
+
+        /// <summary>Plots a rectangle (outline) setting the bits to <paramref name="value"/>.</summary>
+        /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the rectangle.</param>
+        public void PlotRectangle(int x1, int y1, int x2, int y2, bool value)
+        {
+            PlotLine(x1, y1, x2, y1, value);
+            PlotLine(x1, y2, x2, y2, value);
+            PlotLine(x1, y1, x1, y2, value);
+            PlotLine(x2, y1, x2, y2, value);
+        }
+
+        #endregion Drawing Plotters
+
         #region Setting and Getting Bytes, Integers and Floats
 
         /// <summary>Reads 8 bits starting at the specified bit array index as an unsigned byte.</summary>
