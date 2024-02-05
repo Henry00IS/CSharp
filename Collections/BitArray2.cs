@@ -419,7 +419,7 @@ namespace BitArrays
         /// <param name="y2">The second y-position in the two-dimensional array of bit values.</param>
         /// <param name="x3">The third x-position in the two-dimensional array of bit values.</param>
         /// <param name="y3">The third y-position in the two-dimensional array of bit values.</param>
-        /// <param name="value">The boolean value to assign to all bits on the rectangle.</param>
+        /// <param name="value">The boolean value to assign to all bits on the triangle.</param>
         public void PlotDottedTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool value = true)
         {
             PlotDottedLine(x1, y1, x2, y2, value);
