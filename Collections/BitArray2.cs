@@ -269,7 +269,7 @@ namespace BitArrays
         /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
         /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
         /// <param name="value">The boolean value to assign to all bits on the line.</param>
-        public void PlotLine(int x1, int y1, int x2, int y2, bool value)
+        public void PlotLine(int x1, int y1, int x2, int y2, bool value = true)
         {
             var dx = Math.Abs(x2 - x1);
             var sx = x1 < x2 ? 1 : -1;
@@ -297,18 +297,134 @@ namespace BitArrays
             }
         }
 
+        /// <summary>
+        /// Plots a dotted line using Bresenham's line algorithm setting the bits to <paramref name="value"/>.
+        /// <para>
+        /// This method skips every other bit, according to a global X pattern with the top-left bit
+        /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
+        /// </para>
+        /// <code>
+        ///1 0 1 0  ->  1 0 1 0    1 0 0 0    1 0 0 0
+        ///0 1 0 1      0 0 0 0    0 0 0 0    0 1 0 0
+        ///1 0 1 0      0 0 0 0    1 0 0 0    0 0 1 0
+        ///0 1 0 1      0 0 0 0    0 0 0 0    0 0 0 1
+        /// </code>
+        /// </summary>
+        /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the line.</param>
+        public void PlotDottedLine(int x1, int y1, int x2, int y2, bool value = true)
+        {
+            var dx = Math.Abs(x2 - x1);
+            var sx = x1 < x2 ? 1 : -1;
+            var dy = -Math.Abs(y2 - y1);
+            var sy = y1 < y2 ? 1 : -1;
+            var error = dx + dy;
+
+            while (true)
+            {
+                var yoff = y1 % 2;
+                var xoff = (x1 + 1) % 2;
+                if (xoff + yoff == 1) this[x1, y1] = value;
+                if (x1 == x2 && y1 == y2) return;
+                var e2 = 2 * error;
+                if (e2 >= dy)
+                {
+                    if (x1 == x2) return;
+                    error += dy;
+                    x1 += sx;
+                }
+                if (e2 <= dx)
+                {
+                    if (y1 == y2) return;
+                    error += dx;
+                    y1 += sy;
+                }
+            }
+        }
+
         /// <summary>Plots a rectangle (outline) setting the bits to <paramref name="value"/>.</summary>
         /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
         /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
         /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
         /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
         /// <param name="value">The boolean value to assign to all bits on the rectangle.</param>
-        public void PlotRectangle(int x1, int y1, int x2, int y2, bool value)
+        public void PlotRectangle(int x1, int y1, int x2, int y2, bool value = true)
         {
             PlotLine(x1, y1, x2, y1, value);
             PlotLine(x1, y2, x2, y2, value);
             PlotLine(x1, y1, x1, y2, value);
             PlotLine(x2, y1, x2, y2, value);
+        }
+
+        /// <summary>
+        /// Plots a dotted rectangle (outline) setting the bits to <paramref name="value"/>.
+        /// <para>
+        /// This method skips every other bit, according to a global X pattern with the top-left bit
+        /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
+        /// </para>
+        /// <code>
+        ///1 0 1 0  ->  1 0 1 0
+        ///0 1 0 1      0 0 0 1
+        ///1 0 1 0      1 0 0 0
+        ///0 1 0 1      0 1 0 1
+        /// </code>
+        /// </summary>
+        /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The end y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the rectangle.</param>
+        public void PlotDottedRectangle(int x1, int y1, int x2, int y2, bool value = true)
+        {
+            PlotDottedLine(x1, y1, x2, y1, value);
+            PlotDottedLine(x1, y2, x2, y2, value);
+            PlotDottedLine(x1, y1, x1, y2, value);
+            PlotDottedLine(x2, y1, x2, y2, value);
+        }
+
+        /// <summary>Plots a triangle (outline) setting the bits to <paramref name="value"/>.</summary>
+        /// <param name="x1">The first x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The first y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The second x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The second y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x3">The third x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y3">The third y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the triangle.</param>
+        public void PlotTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool value = true)
+        {
+            PlotLine(x1, y1, x2, y2, value);
+            PlotLine(x2, y2, x3, y3, value);
+            PlotLine(x3, y3, x1, y1, value);
+        }
+
+        /// <summary>
+        /// Plots a dotted triangle (outline) setting the bits to <paramref name="value"/>.
+        /// <para>
+        /// This method skips every other bit, according to a global X pattern with the top-left bit
+        /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
+        /// </para>
+        /// <code>
+        ///1 0 1 0  ->  1 0 0 0
+        ///0 1 0 1      0 1 0 0
+        ///1 0 1 0      1 0 1 0
+        ///0 1 0 1      0 1 0 1
+        /// </code>
+        /// </summary>
+        /// <param name="x1">The first x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y1">The first y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x2">The second x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y2">The second y-position in the two-dimensional array of bit values.</param>
+        /// <param name="x3">The third x-position in the two-dimensional array of bit values.</param>
+        /// <param name="y3">The third y-position in the two-dimensional array of bit values.</param>
+        /// <param name="value">The boolean value to assign to all bits on the rectangle.</param>
+        public void PlotDottedTriangle(int x1, int y1, int x2, int y2, int x3, int y3, bool value = true)
+        {
+            PlotDottedLine(x1, y1, x2, y2, value);
+            PlotDottedLine(x2, y2, x3, y3, value);
+            PlotDottedLine(x3, y3, x1, y1, value);
         }
 
         #endregion Drawing Plotters
