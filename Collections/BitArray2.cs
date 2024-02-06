@@ -263,6 +263,7 @@ namespace BitArrays
 
         /// <summary>
         /// Plots a line using Bresenham's line algorithm setting the bits to <paramref name="value"/>.
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
         /// </summary>
         /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
         /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
@@ -279,7 +280,8 @@ namespace BitArrays
 
             while (true)
             {
-                this[x1, y1] = value;
+                if (x1 >= 0 && x1 < _Width && y1 >= 0 && y1 < _Height)
+                    this[x1, y1] = value;
                 if (x1 == x2 && y1 == y2) return;
                 var e2 = 2 * error;
                 if (e2 >= dy)
@@ -303,6 +305,7 @@ namespace BitArrays
         /// This method skips every other bit, according to a global X pattern with the top-left bit
         /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
         /// </para>
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
         /// <code>
         ///1 0 1 0  ->  1 0 1 0    1 0 0 0    1 0 0 0
         ///0 1 0 1      0 0 0 0    0 0 0 0    0 1 0 0
@@ -327,7 +330,8 @@ namespace BitArrays
             {
                 var yoff = y1 % 2;
                 var xoff = (x1 + 1) % 2;
-                if (xoff + yoff == 1) this[x1, y1] = value;
+                if (xoff + yoff == 1 && x1 >= 0 && x1 < _Width && y1 >= 0 && y1 < _Height)
+                    this[x1, y1] = value;
                 if (x1 == x2 && y1 == y2) return;
                 var e2 = 2 * error;
                 if (e2 >= dy)
@@ -345,7 +349,10 @@ namespace BitArrays
             }
         }
 
-        /// <summary>Plots a rectangle (outline) setting the bits to <paramref name="value"/>.</summary>
+        /// <summary>
+        /// Plots a rectangle (outline) setting the bits to <paramref name="value"/>.
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
+        /// </summary>
         /// <param name="x1">The start x-position in the two-dimensional array of bit values.</param>
         /// <param name="y1">The start y-position in the two-dimensional array of bit values.</param>
         /// <param name="x2">The end x-position in the two-dimensional array of bit values.</param>
@@ -365,6 +372,7 @@ namespace BitArrays
         /// This method skips every other bit, according to a global X pattern with the top-left bit
         /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
         /// </para>
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
         /// <code>
         ///1 0 1 0  ->  1 0 1 0
         ///0 1 0 1      0 0 0 1
@@ -385,7 +393,10 @@ namespace BitArrays
             PlotDottedLine(x2, y1, x2, y2, value);
         }
 
-        /// <summary>Plots a triangle (outline) setting the bits to <paramref name="value"/>.</summary>
+        /// <summary>
+        /// Plots a triangle (outline) setting the bits to <paramref name="value"/>.
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
+        /// </summary>
         /// <param name="x1">The first x-position in the two-dimensional array of bit values.</param>
         /// <param name="y1">The first y-position in the two-dimensional array of bit values.</param>
         /// <param name="x2">The second x-position in the two-dimensional array of bit values.</param>
@@ -406,6 +417,7 @@ namespace BitArrays
         /// This method skips every other bit, according to a global X pattern with the top-left bit
         /// of the global <see cref="BitArray2"/> beginning with 1 to draw dotted.
         /// </para>
+        /// <para>The plotting coordinates can be positioned out of bounds.</para>
         /// <code>
         ///1 0 1 0  ->  1 0 0 0
         ///0 1 0 1      0 1 0 0
