@@ -257,6 +257,10 @@ namespace BitArrays
         /// </exception>
         public void Ror(int amount) => _Bits.Ror(amount);
 
+        /// <summary>Checks whether all bits in the bit array are zero.</summary>
+        /// <returns>True when all bits are zero else false.</returns>
+        public bool IsZero() => _Bits.IsZero();
+
         #endregion Bit Operators
 
         #region Drawing Plotters
