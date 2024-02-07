@@ -1,7 +1,7 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright(c) 2023 Henry de Jongh
+// Copyright(c) 2023-2024 Henry de Jongh
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,18 @@
 // SOFTWARE.
 ////////////////////// https://github.com/Henry00IS/CSharp ////////// http://00laboratories.com/ //
 
-using OOLaboratories.Collections;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 
-namespace BitArrays
+namespace OOLaboratories.Collections
 {
     /// <summary>
     /// Manages a compact two-dimensional array of bit values, which are represented as Booleans,
     /// where true indicates that the bit is on (1) and false indicates the bit is off (0).
     /// </summary>
-    public class BitArray2 : ICloneable
+    public class BitArray2 : IReadOnlyCollection<bool>, ICloneable
     {
         /// <summary>The internal one-dimensional array of bits.</summary>
         private readonly BitArray _Bits;
@@ -788,6 +789,23 @@ namespace BitArrays
         }
 
         #endregion Setting and Getting Bytes, Integers and Floats
+
+        #region IReadOnlyCollection<bool> Implementation
+
+        int IReadOnlyCollection<bool>.Count => _Bits.Length;
+
+        public IEnumerator<bool> GetEnumerator()
+        {
+            for (int i = 0; i < _Bits.Length; i++)
+                yield return _Bits[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion IReadOnlyCollection<bool> Implementation
 
         #region ICloneable Implementation
 
