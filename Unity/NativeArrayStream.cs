@@ -56,6 +56,9 @@ namespace OOLaboratories.Unity
             position = 0;
         }
 
+        /// <summary>Creates a new instance of <see cref="NativeArrayStream{T}"/>.</summary>
+        /// <param name="array">The array of existing data to be copied.</param>
+        /// <param name="allocator">The native allocator type.</param>
         public NativeArrayStream(T[] array, Allocator allocator = Allocator.Temp)
         {
             var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
@@ -63,6 +66,22 @@ namespace OOLaboratories.Unity
             if ((length % sizeOfT) != 0) throw new ArgumentOutOfRangeException(nameof(length), "The length must be a multiple of <T> (" + sizeOfT + ")");
             buffer = new NativeArray<T>(array, allocator);
             bufferPtr = (byte*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(buffer);
+            position = 0;
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="NativeArrayStream{T}"/>. This constructor uses the
+        /// given pointer and length as the stream data.
+        /// </summary>
+        /// <param name="arrayPtr">The pointer to an array to be wrapped.</param>
+        /// <param name="length">The length of the array.</param>
+        public NativeArrayStream(void* arrayPtr, int length)
+        {
+            var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+            this.length = length * sizeOfT;
+            if ((length % sizeOfT) != 0) throw new ArgumentOutOfRangeException(nameof(length), "The length must be a multiple of <T> (" + sizeOfT + ")");
+            buffer = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(arrayPtr, length, Allocator.None);
+            bufferPtr = (byte*)arrayPtr;
             position = 0;
         }
 
@@ -185,6 +204,10 @@ namespace OOLaboratories.Unity
         /// <summary>Gets the underlying <see cref="NativeArray{T}"/>.</summary>
         /// <returns>The underlying <see cref="NativeArray{T}"/>.</returns>
         public NativeArray<T> GetNativeArray() => buffer;
+
+        /// <summary>Gets the pointer to the underlying <see cref="NativeArray{T}"/> data.</summary>
+        /// <returns>The pointer to the underlying <see cref="NativeArray{T}"/> data.</returns>
+        public byte* GetUnsafePtr() => bufferPtr;
 
         protected override void Dispose(bool disposing)
         {
