@@ -26,34 +26,30 @@ using System;
 using System.IO;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine;
 
 namespace OOLaboratories.Unity
 {
-    /// <summary>Specialized <see cref="Stream"/> that uses native memory <see cref="NativeArray{T}"/>.</summary>
+    /// <summary>Specialized <see cref="UnmanagedMemoryStream"/> that uses <see cref="NativeArray{T}"/>.</summary>
     /// <typeparam name="T">The type stored in the <see cref="NativeArray{T}"/>.</typeparam>
-    internal unsafe class NativeArrayStream<T> : Stream where T : struct
+    internal unsafe class NativeArrayStream<T> : UnmanagedMemoryStream where T : struct
     {
         /// <summary>The native memory storing the stream data.</summary>
         private readonly NativeArray<T> buffer;
+
         /// <summary>The native memory pointer into <see cref="buffer"/>.</summary>
-        private readonly byte* bufferPtr;
-        /// <summary>The length of <see cref="buffer"/> in bytes.</summary>
-        public readonly int length;
-        /// <summary>The current position pointer in the stream.</summary>
-        private int position;
+        private byte* bufferPtr;
 
         /// <summary>Creates a new instance of <see cref="NativeArrayStream{T}"/>.</summary>
         /// <param name="length">The length of the stream in bytes(!).</param>
         /// <param name="allocator">The native allocator type.</param>
-        public NativeArrayStream(int length, Allocator allocator = Allocator.Temp)
+        /// <param name="options">Whether native memory should be cleared or left uninitialized.</param>
+        public NativeArrayStream(int length, Allocator allocator = Allocator.Temp, NativeArrayOptions options = NativeArrayOptions.ClearMemory)
         {
-            var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
-            this.length = length;
+            var sizeOfT = UnsafeUtility.SizeOf(typeof(T));
             if ((length % sizeOfT) != 0) throw new ArgumentOutOfRangeException(nameof(length), "The length must be a multiple of <T> (" + sizeOfT + ")");
-            buffer = new NativeArray<T>(length / sizeOfT, allocator);
+            buffer = new NativeArray<T>(length / sizeOfT, allocator, options);
             bufferPtr = (byte*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(buffer);
-            position = 0;
+            Initialize(bufferPtr, length, length, FileAccess.ReadWrite);
         }
 
         /// <summary>Creates a new instance of <see cref="NativeArrayStream{T}"/>.</summary>
@@ -61,12 +57,12 @@ namespace OOLaboratories.Unity
         /// <param name="allocator">The native allocator type.</param>
         public NativeArrayStream(T[] array, Allocator allocator = Allocator.Temp)
         {
-            var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
-            this.length = array.Length * sizeOfT;
+            var sizeOfT = UnsafeUtility.SizeOf(typeof(T));
+            var length = array.Length * sizeOfT;
             if ((length % sizeOfT) != 0) throw new ArgumentOutOfRangeException(nameof(length), "The length must be a multiple of <T> (" + sizeOfT + ")");
             buffer = new NativeArray<T>(array, allocator);
             bufferPtr = (byte*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(buffer);
-            position = 0;
+            Initialize(bufferPtr, length, length, FileAccess.ReadWrite);
         }
 
         /// <summary>
@@ -74,131 +70,14 @@ namespace OOLaboratories.Unity
         /// given pointer and length as the stream data.
         /// </summary>
         /// <param name="arrayPtr">The pointer to an array to be wrapped.</param>
-        /// <param name="length">The length of the array.</param>
+        /// <param name="length">The length of the array in bytes(!).</param>
         public NativeArrayStream(void* arrayPtr, int length)
         {
-            var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
-            this.length = length * sizeOfT;
+            var sizeOfT = UnsafeUtility.SizeOf(typeof(T));
             if ((length % sizeOfT) != 0) throw new ArgumentOutOfRangeException(nameof(length), "The length must be a multiple of <T> (" + sizeOfT + ")");
             buffer = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(arrayPtr, length, Allocator.None);
             bufferPtr = (byte*)arrayPtr;
-            position = 0;
-        }
-
-        public override bool CanRead => true;
-
-        public override bool CanSeek => true;
-
-        public override bool CanWrite => true;
-
-        public override long Length => length;
-
-        public override long Position
-        {
-            get => position;
-            set
-            {
-                int location = (int)value;
-                if (location < 0)
-                    throw new ArgumentOutOfRangeException("The position is outside of the stream.");
-                if (location >= length)
-                    throw new ArgumentOutOfRangeException("The position is outside of the stream.");
-                position = location;
-            }
-        }
-
-        public override void Flush()
-        {
-            // there is nothing to be flushed.
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            if (!this.buffer.IsCreated) throw new ObjectDisposedException(nameof(NativeArrayStream<T>), "The stream has already been disposed.");
-
-            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset), "Non-negative number required.");
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Non-negative number required.");
-            if (buffer.Length - offset < count) throw new ArgumentException("Invalid offset and count relative to buffer length.");
-            if (count == 0) return 0; // caller did not wish to read anything.
-
-            // the amount of bytes that can still be read from this stream.
-            int bytesRemainingInStream = length - position;
-            if (bytesRemainingInStream <= 0) return 0; // reached the end of the stream.
-
-            // either the amount the caller requested or the bytes remaining.
-            int bytesRead = Mathf.Min(bytesRemainingInStream, count);
-
-            // source: native memory plus the current stream position.
-            // destination: target buffer plus their desired offset.
-            byte* srcPtr = bufferPtr + position;
-            fixed (byte* destPtr = &buffer[offset])
-            {
-                UnsafeUtility.MemCpy(destPtr, srcPtr, bytesRead);
-            }
-
-            // forward the stream position by the bytes read.
-            position += bytesRead;
-            return bytesRead;
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            int location;
-
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    location = (int)offset;
-                    break;
-
-                case SeekOrigin.Current:
-                    location = position + (int)offset;
-                    break;
-
-                case SeekOrigin.End:
-                    location = length + (int)offset;
-                    break;
-
-                default: throw new ArgumentException("Invalid '" + nameof(SeekOrigin) + "' value.", nameof(origin));
-            }
-
-            if (location < 0 || location >= length)
-                throw new ArgumentOutOfRangeException(nameof(offset), "Attempted to seek outside the stream bounds.");
-
-            position = location;
-            return position;
-        }
-
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            if (!this.buffer.IsCreated) throw new ObjectDisposedException(nameof(NativeArrayStream<T>), "The stream has already been disposed.");
-
-            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset), "Non-negative number required.");
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Non-negative number required.");
-            if (buffer.Length - offset < count) throw new ArgumentException("Invalid offset and count relative to buffer length.");
-            if (count == 0) return; // caller did not wish to write anything.
-
-            // the amount of bytes that can still be written to this stream.
-            int bytesRemainingInStream = length - position;
-            if (bytesRemainingInStream <= 0 || count > bytesRemainingInStream) throw new EndOfStreamException("No space left in the stream.");
-
-            // source: target buffer plus their desired offset.
-            // destination: native memory plus the current stream position.
-            byte* destPtr = bufferPtr + position;
-            fixed (byte* srcPtr = &buffer[offset])
-            {
-                UnsafeUtility.MemCpy(destPtr, srcPtr, count);
-            }
-
-            // forward the stream position by the bytes written.
-            position += count;
+            Initialize(bufferPtr, length, length, FileAccess.ReadWrite);
         }
 
         /// <summary>Gets the underlying <see cref="NativeArray{T}"/>.</summary>
@@ -209,10 +88,19 @@ namespace OOLaboratories.Unity
         /// <returns>The pointer to the underlying <see cref="NativeArray{T}"/> data.</returns>
         public byte* GetUnsafePtr() => bufferPtr;
 
+        /// <summary>
+        /// The length of the stream in bytes (same as <see cref="UnmanagedMemoryStream.Length"/>
+        /// but as an <see cref="int"/> for convenience).
+        /// </summary>
+        public int length => (int)Length;
+
+        /// <summary>Disposes of the internal native memory if owned by this <see cref="NativeArrayStream{T}"/>.</summary>
+        /// <param name="disposing">True when called by user and false when called by finalizer.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && buffer.IsCreated)
+            if (buffer.IsCreated)
                 buffer.Dispose();
+            bufferPtr = default;
             base.Dispose(disposing);
         }
     }
