@@ -28,12 +28,13 @@ namespace OOLaboratories.Async
     /// <see cref="CachedAsyncStall{T}"/> provides a thread-safe mechanism to serialize asynchronous
     /// operations of type <typeparamref name="T"/>. It ensures that only one instance of the
     /// provided async work runs at a time. Subsequent calls to <see cref="StallAsync"/> await the
-    /// completion of the currently running <see cref="Task"/> instead of starting a new one. Once
-    /// the task completes successfully, it caches the result and returns it immediately for future
-    /// calls. On failure or cancellation, the slot is freed for the next call to retry. This is
-    /// useful for throttling concurrent async operations with memoization on success, such as
+    /// completion of the currently running <see cref="Task{T}"/> instead of starting a new one.
+    /// Once the task completes successfully, it caches the result and returns it immediately for
+    /// future calls. On failure or cancellation, the slot is freed for the next call to retry. This
+    /// is useful for throttling concurrent async operations with memoization on success, such as
     /// rate-limiting API calls, without blocking threads.
     /// </summary>
+    /// <typeparam name="T">The return type of the async work.</typeparam>
     public class CachedAsyncStall<T>
     {
         /// <summary>
@@ -130,6 +131,58 @@ namespace OOLaboratories.Async
                     // faults or cancellations in the shared task propagate to all awaiters.
                     return current;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously clears the cached successful result, if present. If a task is currently
+        /// running, awaits its completion before final cleanup to avoid duplicate executions or
+        /// incomplete state. This does not cancel or interrupt running tasks. If the task that was
+        /// awaited is no longer in cache then the cache is not cleared (i.e. older calls do not
+        /// affect newer calls).
+        /// <para>
+        /// Warning: Do not call this inside of the <see cref="StallAsync"/> callback function, as
+        /// that will cause a deadlock (awaiting the current task inside of the current task; it can
+        /// never complete).
+        /// </para>
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous clear operation.</returns>
+        public async Task ClearCacheAsync()
+        {
+            // find the current task (it cannot be in cache when found).
+            Task<T>? task = null;
+            lock (mutex)
+            {
+                task = current;
+
+                // clear the cache if there is no current task.
+                if (task is null)
+                {
+                    successCache = null;
+                    return; // we are done.
+                }
+            }
+
+            // now that we exited the lock statement, other threads could have changed everything.
+
+            // we await the task that was current at the time of this function call.
+            try
+            {
+                await task;
+            }
+            catch
+            {
+                // swallow faults from the awaited task as we are just synchronizing.
+            }
+
+            // acquire another lock on the fields.
+            lock (mutex)
+            {
+                // ensure the cached task is still the task we awaited:
+                if (successCache == task)
+                    successCache = null;
+
+                // so that we do not clear the cache of future tasks.
             }
         }
     }

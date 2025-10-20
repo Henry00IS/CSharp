@@ -28,11 +28,12 @@ namespace OOLaboratories.Async
     /// <see cref="AsyncStall{T}"/> provides a thread-safe mechanism to serialize asynchronous
     /// operations of type <typeparamref name="T"/>. It ensures that only one instance of the
     /// provided async work runs at a time. Subsequent calls to <see cref="StallAsync"/> await the
-    /// completion of the currently running <see cref="Task"/> instead of starting a new one. Once
-    /// the task completes (success, fault, or cancellation), the slot is freed for the next call.
-    /// This is useful for throttling concurrent async operations, such as rate-limiting API calls,
-    /// without blocking threads.
+    /// completion of the currently running <see cref="Task{T}"/> instead of starting a new one.
+    /// Once the task completes (success, fault, or cancellation), the slot is freed for the next
+    /// call. This is useful for throttling concurrent async operations, such as rate-limiting API
+    /// calls, without blocking threads.
     /// </summary>
+    /// <typeparam name="T">The return type of the async work.</typeparam>
     public class AsyncStall<T>
     {
         /// <summary>
